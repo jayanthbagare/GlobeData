@@ -14,8 +14,7 @@ function calculateSphericalFromLatLon(radius,lat,lon){
     
       var vector = new THREE.Vector3();
       vector.setFromSpherical(spherical);
-    
-      console.log(vector.x, vector.y, vector.z);
+
       return vector;
 }
 
@@ -36,26 +35,33 @@ function init(){
 
     controls = new OrbitControls(camera,canvas);
 
-    const texture = new THREE.TextureLoader().load("earthnight.jpg")
+    const texture = new THREE.TextureLoader().load("earthmap1k.jpg")
     const bumpTexture = new THREE.TextureLoader().load("earthbump1k.jpg");
     const specularTexture = new THREE.TextureLoader().load("earthspec1k.jpg");
 
     geometry = new THREE.SphereGeometry(4,50,50);
-    material = new THREE.MeshBasicMaterial({
+    material = new THREE.MeshPhongMaterial({
         color:0xFFFFFF,
         map:texture,
         bumpMap:bumpTexture,
         specularMap:specularTexture,
-        specular:new THREE.Color('grey'),
+         specular:new THREE.Color('Grey'),
     });
     mesh = new THREE.Mesh(geometry,material);
     scene.add(mesh);
 
-    scene.add(new THREE.AmbientLight(0x333333));
+    var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    hemiLight.position.set( 0, 50, 0 );
+    scene.add( hemiLight );
 
-    var light = new THREE.DirectionalLight(0xffffff, 1);
-    light.position.set(5,3,5);
-    scene.add(light);
+    var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    dirLight.position.set( 1, 0.75, 1 );
+    dirLight.position.multiplyScalar( 50);
+    dirLight.name = "dirlight";
+    dirLight.castShadow = true;
+    scene.add( dirLight );
+
+    
 
     renderer.setSize(width, height);
     let pos = calculateSphericalFromLatLon(4,12.9716,77.5946);
@@ -64,7 +70,7 @@ function init(){
         color:0xFF0000,
     });
     const boxMesh = new THREE.Mesh(box,boxMaterial);
-    boxMesh.position.set(pos.x,pos.y,pos.z);
+    boxMesh.position.setFromSpherical(pos.x,pos.y,pos.z);
     scene.add(boxMesh);
     animate();
 }
